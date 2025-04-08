@@ -31,12 +31,16 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 	##
 
 	echo
-	echo -n "Installing script ................................ "
-	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; }; echo -e "\033[32m[OK!]\033[0m\n"
+	echo -n "Installing script "
+	# shellcheck disable=SC2034
+	for run in {1..32}; do { echo -n "."; sleep 0.02; }; done;
+	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e " \033[1;91m[FAILED]\033[0m"; echo; exit 1; }; echo -e " \033[32m[OK!]\033[0m\n"
 
-	echo -n "Create backup directory .......................... "
+	echo -n "Create backup directory "
+	# shellcheck disable=SC2034
+	for run in {1..26}; do { echo -n "."; sleep 0.02; }; done;
 	# shellcheck disable=SC2174
-	mkdir -p -m 600 "$BkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	mkdir -p -m 600 "$BkpDir" || { echo -e " \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e " \033[32m[OK!]\033[0m\n"
 
 	echo -n "Create backup log directory ...................... "
 	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
