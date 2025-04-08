@@ -40,30 +40,23 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 	echo -n "Create backup log directory ... "
 	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 
-	echo -n " Create schedule ... "
+	echo -n "Create schedule ... "
 	ln -s "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 
 	echo -n "Create logrotate for backup logs ... "
 	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missingok\n	rotate 7\n}" >> /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
-	#| sudo tee /etc/logrotate.d/mariaDBkpLogs >/dev/null	# Create log logrotate conf
 
 	echo -n "Create logrotate for backup files ... "
 	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missingok\n	rotate 7\n}" >> /etc/logrotate.d/mariaDBkps || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
-	#| sudo tee /etc/logrotate.d/mariaDBkps >/dev/null	# Create backup logrotate conf
-	echo -e "\033[32m[OK!]\033[0m\n"
 
 	echo -n "Generate backup user password ... "
 	BkpUsrPass=$(openssl rand -base64 29 | tr -d "/" | cut -c1-20); echo -e "\033[32m[OK!]\033[0m\n"
 
 	echo -n "Write backup user password to salt file ... "
 	echo "The mariaDB Backup User password is:	$BkpUsrPass" > /root/salt || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
-	#| sudo tee --append /root/salt >/dev/null	# write the backup user password into salt file
-	# echo -e "\033[32m[OK!]\033[0m\n"
 
 	echo -n "Create autologin into mariaDB with backup user ... "
 	echo -e "[client]\nuser=mariaDBkpUsr\npassword=$BkpUsrPass" >> /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
-	#| sudo tee /root/.my.cnf >/dev/null	# create autologin into mariaDB with Backup User creds
-	#echo -e "\033[32m[OK!]\033[0m\n"
 
 	echo -n "Create backup user and assign permissions ... "
 	sudo mariadb -umariadmin -p"$mDBPass" <<END || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
