@@ -29,7 +29,7 @@ mapfile -t BkpDBs < <(echo "${AllDBs[@]}" "${NoBkpDBs[@]}" | tr ' ' '\n' | sort 
 
 if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 
-	install -D -m500 "$0" "$InstDir"/mdbkp # install script
+	install -D -m500 "$0" "$InstDir"/mdbkp # install script (create folder path, copy the script file, set permissions on the copied file)
 
 	# shellcheck disable=SC2174
 	mkdir -p -m 600 "$BkpDir"	# create backup directory with path
