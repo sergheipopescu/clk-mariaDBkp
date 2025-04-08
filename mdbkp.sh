@@ -32,40 +32,40 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 
 	echo
 	echo -n "Installing script ................................ "
-	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; }; echo -e "\033[32m[OK!]\033[0m\n"
+	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; }; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create backup directory .......................... "
 	# shellcheck disable=SC2174
-	mkdir -p -m 600 "$BkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	mkdir -p -m 600 "$BkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create backup log directory ...................... "
-	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create schedule .................................. "
-	ln -s "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	ln -s "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create logrotate for backup logs ................. "
-	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create logrotate for backup files ................ "
-	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkps || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkps || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Generate backup user password .................... "
-	BkpUsrPass=$(openssl rand -base64 29 | tr -d "/" | cut -c1-20); echo -e "\033[32m[OK!]\033[0m\n"
+	BkpUsrPass=$(openssl rand -base64 29 | tr -d "/" | cut -c1-20); echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Export backup user password to salt file ......... "
-	echo -e "\nThe mariaDB Backup User password is:	$BkpUsrPass" >> /root/salt || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	echo -e "\nThe mariaDB Backup User password is:	$BkpUsrPass" >> /root/salt || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create autologin into mariaDB with backup user ... "
-	echo -e "[client]\nuser=mariaDBkpUsr\npassword=$BkpUsrPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	echo -e "[client]\nuser=mariaDBkpUsr\npassword=$BkpUsrPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 	echo -n "Create backup user and assign permissions ........ "
-	sudo mariadb -umariadmin -p"$mDBPass" <<END || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	sudo mariadb -umariadmin -p"$mDBPass" <<END || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 	GRANT SELECT, LOCK TABLES, SHOW VIEW ON *.* TO 'mariaDBkpUsr'@'localhost' IDENTIFIED BY '$BkpUsrPass';
 END
 
 	echo -n "Cleanup .......................................... "
-	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "[\033[32mOK!\033[0m\n]"
 
 else
 
