@@ -64,7 +64,7 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 END
 
 	echo -n "Cleanup ... "
-	rmdir -r "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 
 else
 
