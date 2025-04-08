@@ -14,6 +14,8 @@ BkpLogDir=/var/log/mariaDBkp
 
 BkpTime=$(date +%Y.%m.%d_%H:%M) # date and time for backup file name
 
+ScriptDir=$(pwd)	# get script directory
+
 NoBkpDBs=("performance_schema" "information_schema" "phpmyadmin" "sys") # List of excluded databases
 
 mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
@@ -48,6 +50,9 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 	sudo mariadb -umariadmin -p"$mDBPass" <<END
 	GRANT SELECT, LOCK TABLES, SHOW VIEW ON *.* TO 'mariaDBkpUsr'@'localhost' IDENTIFIED BY '$BkpUsrPass';
 END
+
+	rmdir -r "$ScriptDir"	# cleanup
+
 else
 
 	##
