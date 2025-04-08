@@ -60,7 +60,7 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 	echo -e "\033[32m[OK!]\033[0m\n"
 
 	echo -n "Create backup user and assign permissions ... "
-	sudo mariadb -umariadmin -p"$mDBPass" <<END || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+	sudo mariadb -umariadmin -p"$mDBPass" <<END || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 	GRANT SELECT, LOCK TABLES, SHOW VIEW ON *.* TO 'mariaDBkpUsr'@'localhost' IDENTIFIED BY '$BkpUsrPass';
 END
 
