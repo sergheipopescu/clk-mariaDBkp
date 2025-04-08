@@ -1,28 +1,12 @@
 #!/bin/bash
 
 ##
-# Variables
+# Global variables
 ##
-
-set -a # export all variables
-
-InstDir=/etc/clickwork/mariaDBkp # set installation directory for the script
 
 BkpDir=/bkp/mariaDB # backup path with trailing slash
 
 BkpLogDir=/var/log/mariaDBkp
-
-BkpTime=$(date +%Y.%m.%d_%H:%M) # date and time for backup file name
-
-ScriptDir=$(pwd)	# get script directory
-
-NoBkpDBs=("performance_schema" "information_schema" "phpmyadmin" "sys") # List of excluded databases
-
-mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
-
-mapfile -t AllDBs < <(echo "SHOW DATABASES;" | mariadb -umariadmin -p"$mDBPass" -N) # Get a list of databases; Old Syntax was SC2034 incompatible: AllDBs=($(echo "SHOW DATABASES;" | mariadb -N))
-
-mapfile -t BkpDBs < <(echo "${AllDBs[@]}" "${NoBkpDBs[@]}" | tr ' ' '\n' | sort | uniq -u) # extract the list of DBs to backup
 
 
 ##
@@ -31,29 +15,72 @@ mapfile -t BkpDBs < <(echo "${AllDBs[@]}" "${NoBkpDBs[@]}" | tr ' ' '\n' | sort 
 
 if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 
-	install -D -m500 "$0" "$InstDir"/mdbkp # install script (create folder path, copy the script file, set permissions on the copied file)
+	##
+	# Install variables
+	##
 
+	InstDir=/etc/clickwork/mariaDBkp # set installation directory for the script
+
+	ScriptDir=$(pwd)	# get script directory
+
+	mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
+
+
+	##
+	# Installation
+	##
+
+	echo -n "Installing script ... "
+	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; }; echo -e "\033[32m[OK!]\033[0m\n"
+
+	echo -n "Create backup directory ... "
 	# shellcheck disable=SC2174
-	mkdir -p -m 600 "$BkpDir"	# create backup directory with path
-	mkdir -p "$BkpLogDir"	# create backup log directory
+	mkdir -p -m 600 "$BkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 
-	ln -s "$InstDir"/mdbkp /etc/cron.daily/mdbkp	# create link to cron folder for scheduling
+	echo -n "Create backup log directory ... "
+	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 
+	echo -n " Create schedule ... "
+	ln -s "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
+
+	echo -n "Create logrotate configs ... "
 	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missingok\n	rotate 7\n}" | sudo tee /etc/logrotate.d/mariaDBkpLogs >/dev/null	# Create log logrotate conf
 	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missingok\n	rotate 7\n}" | sudo tee /etc/logrotate.d/mariaDBkps >/dev/null	# Create backup logrotate conf
+	echo -e "\033[32m[OK!]\033[0m\n"
 
-	BkpUsrPass=$(openssl rand -base64 29 | tr -d "/" | cut -c1-20)	# generate password for the backup user
+	echo -n "Generate backup user password ... "
+	BkpUsrPass=$(openssl rand -base64 29 | tr -d "/" | cut -c1-20); echo -e "\033[32m[OK!]\033[0m\n"
+
+	echo -n "Write backup user password to salt file ... "
 	echo "The mariaDB Backup User password is:	$BkpUsrPass" | sudo tee --append /root/salt >/dev/null	# write the backup user password into salt file
+	echo -e "\033[32m[OK!]\033[0m\n"
 
+	echo -n "Create autologin into mariaDB with backup user ... "
 	echo -e "[client]\nuser=mariaDBkpUsr\npassword=$BkpUsrPass" | sudo tee /root/.my.cnf >/dev/null	# create autologin into mariaDB with Backup User creds
+	echo -e "\033[32m[OK!]\033[0m\n"
 
-	sudo mariadb -umariadmin -p"$mDBPass" <<END
+	echo -n "Create backup user and assign permissions ... "
+	sudo mariadb -umariadmin -p"$mDBPass" <<END || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 	GRANT SELECT, LOCK TABLES, SHOW VIEW ON *.* TO 'mariaDBkpUsr'@'localhost' IDENTIFIED BY '$BkpUsrPass';
 END
 
-	rmdir -r "$ScriptDir"	# cleanup
+	echo -n "Cleanup ... "
+	rmdir -r "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "\033[32m[OK!]\033[0m\n"
 
 else
+
+	##
+	# Backup variables
+	##
+
+	BkpTime=$(date +%Y.%m.%d_%H:%M) # date and time for backup file name
+
+	NoBkpDBs=("performance_schema" "information_schema" "phpmyadmin" "sys") # List of excluded databases
+
+	mapfile -t AllDBs < <(echo "SHOW DATABASES;" | mariadb -umariadmin -p"$mDBPass" -N) # Get a list of databases; Old Syntax was SC2034 incompatible: AllDBs=($(echo "SHOW DATABASES;" | mariadb -N))
+
+	mapfile -t BkpDBs < <(echo "${AllDBs[@]}" "${NoBkpDBs[@]}" | tr ' ' '\n' | sort | uniq -u) # extract the list of DBs to backup
+
 
 	##
 	# Loop through the DBs
