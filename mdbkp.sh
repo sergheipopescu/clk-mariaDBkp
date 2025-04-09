@@ -63,7 +63,7 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
 
 	echo -n "Create schedule .................................. "
-	ln -s "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	ln -sf "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
 
 	echo -n "Create logrotate for backup logs ................. "
 	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
