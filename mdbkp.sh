@@ -15,7 +15,7 @@ InstDir=/etc/clickwork/mariaDBkp # set installation directory
 # Install script if it's not present
 ##
 
-if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
+if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 
 	##
 	# Install variables
