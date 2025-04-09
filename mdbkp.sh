@@ -35,15 +35,15 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 
 	if ! [ -f /root/.my.cnf ]; then
 
-		echo -e "[\033[33mNOT FOUND\033[0m]\n"
+		echo -e "[\033[33m NOT FOUND \033[0m]\n"
 		mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
 
 		echo -n "Creating .my.cnf autologin file .................. "
-		echo -e "[client]\nuser=mariadmin\npassword=$mDBPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+		echo -e "[client]\nuser=mariadmin\npassword=$mDBPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	else
 
-		echo -e "[\033[32mOK\033[0m]\n"		
+		echo -e "[\033[32m OK \033[0m]\n"		
 
 	fi
 
@@ -53,26 +53,26 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 	##
 
 	echo -n "Installing script ................................ "
-	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; }; echo -e "[\033[32mOK\033[0m]\n"
+	install -D -m500 "$0" "$InstDir"/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; }; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Create backup directory .......................... "
 	# shellcheck disable=SC2174
-	mkdir -p -m 600 "$BkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	mkdir -p -m 600 "$BkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Create backup log directory ...................... "
-	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Create schedule .................................. "
-	ln -sf "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	ln -sf "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Create logrotate for backup logs ................. "
-	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missing OK \n	rotate 7\n}" > /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Create logrotate for backup files ................ "
-	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missingok\n	rotate 7\n}" > /etc/logrotate.d/mariaDBkps || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missing OK \n	rotate 7\n}" > /etc/logrotate.d/mariaDBkps || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Cleanup .......................................... "
-	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "[\033[32mOK\033[0m]\n"
+	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 else
 
