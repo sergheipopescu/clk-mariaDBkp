@@ -46,8 +46,6 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 
 		else
 
-			echo
-			echo
 			read -r -p "	Enter mariaDB login username: " mDBUsr	# ask for username
 			read -r -p "	Enter mariaDB login password: " mDBPass	# ask for password
 
