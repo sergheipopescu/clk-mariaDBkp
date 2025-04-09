@@ -36,10 +36,27 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 	if ! [ -f /root/.my.cnf ]; then
 
 		echo -e "[\033[33m NOT FOUND \033[0m]\n"
-		mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
 
-		echo -n "Creating .my.cnf autologin file .................. "
-		echo -e "[client]\nuser=mariadmin\npassword=$mDBPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+		if [ -f /root/salt ]; then
+
+			mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
+
+			echo -n "Creating .my.cnf autologin file .................. "
+			echo -e "[client]\nuser=mariadmin\npassword=$mDBPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+
+		else
+
+			echo
+			echo
+			read -r -p "	Enter mariaDB login username: " mDBUsr	# ask for username
+			read -r -p "	Enter mariaDB login password: " mDBPass	# ask for password
+
+			echo
+			echo -n "Creating .my.cnf autologin file .................. "
+			echo -e "[client]\nuser=$mDBUsr\npassword=$mDBPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+
+		fi
+		
 
 	else
 
