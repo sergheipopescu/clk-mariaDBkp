@@ -77,7 +77,7 @@ else
 
 	NoBkpDBs=("performance_schema" "information_schema" "phpmyadmin" "sys") # List of excluded databases
 
-	mapfile -t AllDBs < <(echo "SHOW DATABASES;" | mariadb -umariadmin -p"$mDBPass" -N) # Get a list of databases; Old Syntax was SC2034 incompatible: AllDBs=($(echo "SHOW DATABASES;" | mariadb -N))
+	mapfile -t AllDBs < <(echo "SHOW DATABASES;" | mariadb -N) # Get a list of databases; Old Syntax was SC2034 incompatible: AllDBs=($(echo "SHOW DATABASES;" | mariadb -N))
 
 	mapfile -t BkpDBs < <(echo "${AllDBs[@]}" "${NoBkpDBs[@]}" | tr ' ' '\n' | sort | uniq -u) # extract the list of DBs to backup
 
