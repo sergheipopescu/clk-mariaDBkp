@@ -8,6 +8,8 @@ BkpDir=/bkp/mariaDB # backup path with trailing slash
 
 BkpLogDir=/var/log/mariaDBkp
 
+InstDir=/etc/clickwork/mariaDBkp # set installation directory
+
 
 ##
 # Install script if it's not present
@@ -19,9 +21,7 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 	# Install variables
 	##
 
-	InstDir=/etc/clickwork/mariaDBkp # set installation directory for the script
-
-	ScriptDir=$(pwd)	# get script directory
+	ScriptDir=$(pwd)	# get current directory
 
 	mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
 
