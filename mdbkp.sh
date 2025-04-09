@@ -77,14 +77,11 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 	echo -n "Create backup log directory ...................... "
 	mkdir -p "$BkpLogDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
-	echo -n "Create schedule .................................. "
+	echo -n "Create backup schedule ........................... "
 	ln -sf "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
-	echo -n "Create logrotate for backup logs ................. "
-	echo -e "\n$BkpLogDir/*.log {\n	daily\n	missing OK \n	rotate 30\n}" > /etc/logrotate.d/mariaDBkpLogs || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
-
-	echo -n "Create logrotate for backup files ................ "
-	echo -e "\n$BkpDir/*.sql.gz {\n	daily\n	missing OK \n	rotate 30\n}" > /etc/logrotate.d/mariaDBkps || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+	echo -n "Create rotate backup schedule .................... "
+	echo -e "find $BkpDir -mindepth 1 -mtime +3 -delete" >> /etc/cron.daily/rotate-backups || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Cleanup .......................................... "
 	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
