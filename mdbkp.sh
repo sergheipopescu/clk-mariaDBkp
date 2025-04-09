@@ -21,7 +21,7 @@ if ! test -f "$InstDir"/mdbkp; then # if script doesn't exist
 	# Install variables
 	##
 
-	ScriptDir=$(pwd)	# get current directory
+	ScriptDir=$(dirname "$0")	# get current directory
 
 	mDBPass=$(sudo grep -oP "mariaDB password is:\s+\K\w+" /root/salt) # get MariaDB root password
 
