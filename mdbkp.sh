@@ -81,8 +81,9 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 	ln -sf "$InstDir"/mdbkp /etc/cron.daily/mdbkp || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 	echo -n "Create rotate backup schedule .................... "
-	echo -e "find $BkpDir -mindepth 1 -mtime +3 -delete" >> /etc/cron.daily/rotate-backups || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
-
+	echo -e "find $BkpDir -mindepth 1 -mtime +3 -delete" > /etc/cron.daily/rotate-backups || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+	chmod +x /etc/cron.daily/rotate-backups
+	
 	echo -n "Cleanup .......................................... "
 	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
