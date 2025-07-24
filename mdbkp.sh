@@ -5,7 +5,11 @@
 # Global variables
 ##
 
-BkpDir=/bkp/mariaDB # backup path
+BkpDir=/bkp/mariaDB # backup path for dbs
+
+wwwBkpDir=/bkp/www
+
+s2mBkpDir=/bkp/s2m
 
 BkpLogDir=/var/log/mariaDBkp # backup log path
 
@@ -55,7 +59,7 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 			echo -e "[client]\nuser=$mDBUsr\npassword=$mDBPass" > /root/.my.cnf || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
 		fi
-		
+
 
 	else
 
@@ -83,7 +87,7 @@ if ! [ -f "$InstDir"/mdbkp ]; then # if script doesn't exist
 	echo -n "Create rotate backup schedule .................... "
 	echo -e "find $BkpDir -mindepth 1 -mtime +30 -delete" > /etc/cron.daily/rotate-backups || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 	chmod +x /etc/cron.daily/rotate-backups
-	
+
 	echo -n "Cleanup .......................................... "
 	rm -rf "$ScriptDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
 
@@ -125,3 +129,36 @@ fi
 #		echo "$EachDB"
 #	fi
 # done
+
+
+###
+# s2m script install
+##
+
+#echo -n "Create www & s2m backup directory ................. "
+#mkdir -p -m 600 "$wwwBkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; }
+#mkdir -p -m 600 "$s2mBkpDir" || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+
+#echo -n "Append rotate backup schedule ..................... "
+#echo -e "find $wwwBkpDir -mindepth 1 -mtime +30 -delete" >> /etc/cron.daily/rotate-backups || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+#echo -e "find $s2mBkpDir -mindepth 1 -mtime +30 -delete" >> /etc/cron.daily/rotate-backups || { echo -e "\n \033[1;91m[FAILED]\033[0m"; echo; exit 1; } ; echo -e "[\033[32m OK \033[0m]\n"
+
+
+###
+# s2m script
+###
+
+# archive www folder
+#tar czvf "$wwwBkpDir"/www."$BkpTime".tar.gz /var/www
+
+# copy backups from the last day to s2m folder
+#find /bkp/ -mindepth 1 -type f -mtime 0 -exec cp {} /bkp/s2m/ \;
+
+# compile attachment list
+#atts=$(printf -- '-a %q ' $(ls $s2mBkpDir/*))
+
+# send the mail
+#mutt -s "Backup vps1 $BkpTime" $atts -- sp@clickwork.ro < /dev/null
+
+# cleanup
+# sudo rm -f "$s2mBkpDir"/*
